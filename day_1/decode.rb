@@ -26,17 +26,26 @@ class Position
 
   def move(instruction)
     instruction.steps.times { send("move_#{instruction.direction}") }
-    @zeroes += 1 if @position == 0
   end
 
   private
 
   def move_left
-    @position == 0 ? @position = 99 : @position -= 1
+    if @position == 0
+      @position = 99
+    else
+      @position -= 1
+      @zeroes += 1 if @position == 0
+    end
   end
 
   def move_right
-    @position == 99 ? @position = 0 : @position += 1
+    if @position == 99
+      @position = 0
+      @zeroes += 1
+    else
+      @position += 1
+    end
   end
 end
 
