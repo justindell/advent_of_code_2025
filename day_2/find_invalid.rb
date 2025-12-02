@@ -10,9 +10,11 @@ class ProductId
   def id = @id.to_i
 
   def invalid?
-    return false unless size.even?
-
-    left_side == right_side
+    (1..half_size).each do |digits|
+      possible = @id[0, digits]
+      return true if @id.gsub(possible, "") == ""
+    end
+    false
   end
 
   private
