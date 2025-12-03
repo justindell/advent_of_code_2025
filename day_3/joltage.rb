@@ -1,20 +1,29 @@
 class Joltage
+  LENGTH = 12
+
+  JoltageFinder = Struct.new(:chars, :length, :accumulated) do
+    def initialize(chars, length, accumulated = "") = super(chars, length, accumulated)
+
+    def find
+      return accumulated.to_i if length == 0
+
+      self.class.new(remaining, length - 1, accumulated + max.to_s).find
+    end
+
+    private
+
+    def room_at_end = length * -1
+    def max         = chars[0..room_at_end].max
+    def remaining   = chars[chars.index(max) + 1..-1]
+  end
+
+
   def initialize(line)
     @chars = line.chars.map(&:to_i)
   end
 
   def amount
-    "#{tens}#{ones}".to_i
-  end
-
-  private
-
-  def tens
-    @chars[0..-2].max
-  end
-
-  def ones
-    @chars[(@chars.index(tens) + 1)..-1].max
+    JoltageFinder.new(@chars, LENGTH).find
   end
 end
 
