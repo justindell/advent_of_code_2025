@@ -21,4 +21,8 @@ class KitchenTest < Minitest::Test
     assert @kitchen.fresh?("17"), "Ingredient '17' should be fresh"
     refute @kitchen.fresh?("32"), "Ingredient '32' should not be fresh"
   end
+
+  def test_should_determine_total_fresh_ingredients
+    assert_equal 14, @kitchen.total_fresh
+  end
 end
