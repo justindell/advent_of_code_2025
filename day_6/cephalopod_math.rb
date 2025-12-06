@@ -1,24 +1,38 @@
-Problem = Struct.new(:inputs) do
+require "matrix"
+
+class Problem
+  def initialize
+    @numbers = []
+    @operator = nil
+  end
+
   def solve
-    numbers.inject { |acc, n| acc.send(operator, n) }
+    return 0 if @numbers.empty? || !@operator
+
+    @numbers.inject { |acc, number| acc.send(@operator, number) }
   end
 
-  def <<(input)
-    return unless input && !input.empty?
-
-    inputs << input
+  def parse_line(line)
+    operator = line[-1].strip
+    number = line[0..-2].join.strip
+    @numbers << number.to_i unless number.empty?
+    @operator = operator unless operator.empty?
   end
-
-  private
-
-  def numbers = inputs[0..-2].map(&:to_i)
-  def operator = inputs.last
 end
 
 class CephalopodMath
   def initialize(input)
     @problems = []
-    input.each_line { |line| parse_line(line) }
+    current_problem = Problem.new
+    build_matrix(input.lines).each do |line|
+      if line.all? { |char| char == " " }
+        @problems << current_problem
+        current_problem = Problem.new
+      end
+
+      current_problem.parse_line(line)
+    end
+    @problems << current_problem
   end
 
   def total
@@ -27,12 +41,12 @@ class CephalopodMath
 
   private
 
-  def parse_line(line)
-    line.strip.split(/\s+/).each_with_index do |token, index|
-      return unless token
-
-      @problems[index] ||= Problem.new([])
-      @problems[index] << token.strip
+  def build_matrix(lines)
+    matrix = []
+    longest_line = lines.map(&:length).max
+    lines.map do |line|
+      matrix << (line.chomp.chars + Array.new(longest_line, ""))[0...longest_line]
     end
+    Matrix[*matrix].column_vectors.map(&:to_a).reverse
   end
 end
