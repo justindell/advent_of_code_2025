@@ -8,22 +8,43 @@ class TachyonLine
     def split? = position == "^"
   end
 
-  attr_reader :splits
+  attr_reader :splits, :line
 
   def initialize(line:, beams: [])
     @line = line
     @beams = beams
-    @splits = 0
+    @splits = []
   end
 
-  def beam_positions
+  def calculate_beam_positions
     @line.chars.each_with_index.filter_map do |position, index|
       next unless @beams.include?(index)
 
       BeamProcessor.new(position, index).tap do |processor|
-        @splits += 1 if processor.split?
+        @splits << index if processor.split?
       end.calculate
     end.flatten.uniq
+  end
+end
+
+class TaychonLineProcessor
+  attr_reader :current_line, :raw_line, :next_line
+
+  def initialize(current_line, raw_line)
+    @current_line = current_line
+    @raw_line = raw_line
+    @next_line = Array.new(@current_line.size, 0)
+  end
+
+  def process
+    @raw_line.chars.each_with_index do |symbol, index|
+      @next_line[index] += @current_line[index] if symbol == "."
+      if symbol == "^"
+        @next_line[index - 1] += @current_line[index]
+        @next_line[index + 1] += @current_line[index]
+      end
+    end
+    @next_line
   end
 end
 
@@ -32,17 +53,30 @@ class Tachyon
 
   def initialize(input)
     @input = input
-    @status = Status.new([ start ], 0)
+    @status = Status.new([ start ], [])
+    @values = setup_values
   end
 
   def total_splits
-    @input.lines[1..-1].inject(@status) do |status, line|
+    @input[1..-1].inject(@status) do |status, line|
       tachyon_line = TachyonLine.new(line:, beams: status.beams)
-      Status.new(tachyon_line.beam_positions, status.splits + tachyon_line.splits)
-    end.splits
+      Status.new(tachyon_line.calculate_beam_positions, status.splits + tachyon_line.splits)
+    end.splits.count
+  end
+
+  def total_timelines
+    @input[1..-1].each do |line|
+      processor = TaychonLineProcessor.new(@values, line.chomp)
+      @values = processor.process
+    end
+    @values.sum
   end
 
   private
 
-  def start = @input.lines.first.index("S")
+  def start = @input.first.index("S")
+
+  def setup_values
+    Array.new(@input.size, 0).tap { |values| values[start] = 1 }
+  end
 end

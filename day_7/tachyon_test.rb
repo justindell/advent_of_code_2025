@@ -24,19 +24,19 @@ class TachyonLineTest < Minitest::Test
   def test_regular_beam_movement
     line = TachyonLine.new(line: ".....", beams: [ 1, 3 ])
 
-    assert_equal [ 1, 3 ], line.beam_positions
+    assert_equal [ 1, 3 ], line.calculate_beam_positions
   end
 
   def test_split_beam
     line = TachyonLine.new(line: ".^...", beams: [ 1, 3 ])
 
-    assert_equal [ 0, 2, 3 ], line.beam_positions
+    assert_equal [ 0, 2, 3 ], line.calculate_beam_positions
   end
 
   def test_combined_beams
     line = TachyonLine.new(line: ".^.^.", beams: [ 1, 3 ])
 
-    assert_equal [ 0, 2, 4 ], line.beam_positions
+    assert_equal [ 0, 2, 4 ], line.calculate_beam_positions
   end
 end
 
@@ -60,7 +60,15 @@ class TachyonTest < Minitest::Test
     ...............
   INPUT
 
+  def setup
+    @tachyon = Tachyon.new(SAMPLE_INPUT.lines)
+  end
+
   def test_total_splits
-    assert_equal 21, Tachyon.new(SAMPLE_INPUT).total_splits
+    assert_equal 21, @tachyon.total_splits
+  end
+
+  def test_total_timelines
+    assert_equal 40, @tachyon.total_timelines
   end
 end
