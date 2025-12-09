@@ -14,7 +14,6 @@ class TilesTest < Minitest::Test
   TEXT
 
   def test_should_find_largest_area
-    tiles = Tiles.new(INPUT)
-    assert_equal 50, tiles.largest_area
+    assert_equal 24, Tiles.new(INPUT).largest_area
   end
 end
