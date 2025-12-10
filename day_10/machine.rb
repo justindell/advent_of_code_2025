@@ -56,23 +56,4 @@ class Machine
       lights.toggle(*positions)
     end
   end
-
-  def find_joltage_success_for(combinations)
-    debugger
-    puts "Trying #{combinations}. Possible combinations: #{(combinations+1)*(combinations+2)/2}"
-    puts wiring.connections.repeated_combination(combinations).count
-    wiring.connections.repeated_combination(combinations).each_with_index do |wiring_combination, index|
-      test_joltage_combination(wiring_combination)
-      return combinations if lights.joltage_success?
-    end
-    nil
-  end
-
-  def test_joltage_combination(wiring_combination)
-    lights.reset
-    wiring_combination.each do |positions|
-      lights.increase_joltage(*positions)
-      return if lights.joltage_impossible?
-    end
-  end
 end
